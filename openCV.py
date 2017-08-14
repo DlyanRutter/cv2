@@ -26,6 +26,17 @@ def cam_videos():
     cap.release() #releases camera
     cv2.destroyAllWindows()
 
+def resize(image, width, show=True):
+    """
+    Takes in an image and a desired pixel width. If show is set to True,
+    resized image will display.
+    """
+    r = float(float(width) / float(image.shape[1]))
+    dimensions = (int(width), int(image.shape[0] * r))
+    resized = cv2.resize(image, dimensions, interpolation=cv2.INTER_AREA)
+    if show == True:
+        cv2.imshow("resized", resized)
+    return resized
 
 class Drawing(object):
     def __init__(self, img):
@@ -91,33 +102,3 @@ class Drawing(object):
         cv2.putText(self.img, text, start, font_name, size, color, thickness)
         cv2.imshow('show', self.img)
         
-
-draw = Drawing(img_color)
-#draw.line((0,0), (150,150), (255,255,255), 15)
-#draw.rectangle((15,25), (250,150), (0,255,0), 5)
-#draw.circle((100,63), 55, (0,0,255), 5, 5)
-#draw.circle((100,63), 55, (0,155,255), 5, 500)
-points = [[10,5], [80,99], [70,200], [60, 50], [250,89]]
-writing = 'this is writing'
-font = cv2.FONT_HERSHEY_SIMPLEX
-#draw.write(writing, (0,130), font, 1, (255,200,255), 2)
-
-#draw.polygon(points, (255, 0, 0))
-
-"""
-points = [[10,5], [80,99], [70,200], [60, 50], [250,89]]
-print np.array([[10,5], [80,99], [70,200], [60, 50], [250,89]], np.int32)
-print points
-)
-y = np.zeros((len(points),2), dtype=np.int)
-print y
-i=0
-while i < len(points):
-    y[i] = points[i]
-    i+=1
-    
-print y
-print np.array(points)
-y[1] = [1,1]
-print y[1]
-"""
