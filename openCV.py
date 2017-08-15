@@ -38,6 +38,17 @@ def resize(image, width, show=True):
         cv2.imshow("resized", resized)
     return resized
 
+def flip(image):
+    """
+    flips an image vertically
+    """
+    (h, w) = image.shape[:2]
+    center = (w / 2, h / 2)
+ 
+    M = cv2.getRotationMatrix2D(center, 180, 1.0)
+    rotated = cv2.warpAffine(image, M, (w, h))
+    return rotated
+
 class Drawing(object):
     def __init__(self, img):
         self.img = img
@@ -101,4 +112,19 @@ class Drawing(object):
         """
         cv2.putText(self.img, text, start, font_name, size, color, thickness)
         cv2.imshow('show', self.img)
-        
+
+    
+class Threshold(object):
+    def __init__(self, img):
+        self.img = img
+
+    def low_light(self, img):
+        """
+        used for low light images. Any pixel below 12 will be made
+        black. Maximum pixel value is 255
+        """
+        retval, threshold = cv2.threshold(img, 12, 255, cv2.THRESH_BINARY)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        gaus = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+                                     cv2.THRESH_BINARY, 115, 1)
+        cv2.imshow('low_light', gaus)
