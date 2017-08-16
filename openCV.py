@@ -128,3 +128,83 @@ class Threshold(object):
         gaus = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
                                      cv2.THRESH_BINARY, 115, 1)
         cv2.imshow('low_light', gaus)
+        def color_filtering(self, lower, upper):
+        """
+        Allows you to filter an image for a selected color. lower argument is
+        a list of three numbers representing lower range limit for
+        Hue, Saturation, Value. e.g. [50, 0, 0]. upper argument has the same
+        form and represents the upper range limit.
+        """
+        hsv = cv2.cvtColor(self.img, cv2.COLOR_BGR2HSV)
+        lower = np.array(lower)
+        upper = np.array(upper)
+        
+        mask = cv2.inRange(hsv, lower, upper)
+        res = cv2.bitwise_and(self.img, self.img, mask=mask)
+
+        cv2.imshow('img', self.img)
+        cv2.imshow('mask', mask)
+        cv2.imshow('result', res)
+        return res
+
+    def blur(self, lower, upper, dim_one, dim_two, Gauss=False, Median=False):
+        """
+        lower argument is a list of three numbers representing lower range limit
+        for Hue, Saturation, Value. e.g. [50, 0, 0]. upper argument has the same
+        form and represents the upper range limit. dim_one and dim_ two are
+        dimensions e.g. 15 and 15
+        """
+        res = self.color_filtering(lower, upper)
+        kernel = np.ones((dim_one,dim_two), np.float32)/(dim_one*dim_two)
+        smoothed = cv2.filter2D(res, -1, kernel)
+        gaussian = cv2.GaussianBlur(res, (dim_one, dim_two), 0)
+        med = cv2.medianBlur(res, dim_one)
+
+        if Gauss == True and Median == True:
+            cv2.imshow('median', med)
+            cv2.imshow('gaussian', gaussian)
+        elif Gauss == True and Median == False:            
+            cv2.imshow('gaussian', gaussian)
+        elif Median == True and Gauss == False:
+            cv2.imshow('median', med)
+        else:
+            cv2.imshow(smoothed)
+
+    def erosion_or_dilation(self, lower, upper, window):
+        """
+        erosion has a slider you decide the size of. If all pixels are identical
+        in color, then it moves on. If not, it'll remove the rogue pixel.
+        dilation pushes out until it can't go any further. lower argument is a
+        list of three numbers representing lower range limitfor Hue, Saturation,
+        Value. e.g. [50, 0, 0]. upper argument has the same form and represents
+        the upper range limit. kernel is a tuple of dimensions for the miniature
+        window. e.g. (5,5)
+        """
+        hsv = cv2.cvtColor(self.img, cv2.COLOR_BGR2HSV)
+        lower = np.array(lower)
+        upper = np.array(upper)
+
+        kernel = np.ones(window, np.uint8)
+        mask = cv2.inRange(hsv, lower, upper)
+        res = cv2.bitwise_and(self.img, self.img, mask=mask)
+        unmasked = cv2.bitwise_and(self.img,self.img)
+        
+        unmasked_ero = cv2.erode(unmasked, kernel, iterations=1)
+        unmasked_dil = cv2.dilate(unmasked, kernel, iterations=1)
+        erosion = cv2.erode(mask, kernel, iterations=1)
+        dilation = cv2.dilate(mask, kernel, iterations=1)
+
+        opening = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+        closing = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+        cv2.imshow('erosion', erosion)
+        cv2.imshow('umasked_erosion', unmasked_ero)
+        cv2.imshow('dilation', dilation)
+        cv2.imshow('unmasked_dilation', unmasked_dil)
+
+        cv2.imshow('opening', opening)
+        cv2.imshow('closing', closing)
+
+        return kernel, res, unmasked, mask
+
+
