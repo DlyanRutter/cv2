@@ -169,6 +169,26 @@ class Threshold(object):
             cv2.imshow('median', med)
         else:
             cv2.imshow(smoothed)
+    
+    def edges(self):
+        """
+        shows edges
+        """
+        edges = cv2.Canny(self.img, 100, 200)
+        cv2.imshow('edges', edges)
+
+    def gradients(self):
+        """
+        creates gradients 
+        """
+        laplacian = cv2.Laplacian(self.img, cv2.CV_64F)
+        cv2.imshow('lap', laplacian)
+
+        sobelx = cv2.Sobel(self.img, cv2.CV_64F, 1, 0, ksize=5)
+        cv2.imshow('sobelx', sobelx)
+
+        sobely = cv2.Sobel(self.img, cv2.CV_64F, 0, 1, ksize=5)
+        cv2.imshow('sobely', sobely)
 
     def erosion_or_dilation(self, lower, upper, window):
         """
